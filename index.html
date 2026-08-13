@@ -6,10 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Portal Operativo Velyth</title>
     <meta name="description" content="Portal Operativo Velyth — Velyth Visions Group LLC" />
-    <meta property="og:image" content="https://bolt.new/static/og_default.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
-</head>
+    <script>
+      // Tema inicial antes del primer render para evitar destello:
+      // prioridad a la elección guardada; si no hay, sigue al sistema.
+      (function () {
+        try {
+          var t = localStorage.getItem('velyth-theme');
+          if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
