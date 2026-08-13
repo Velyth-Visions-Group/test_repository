@@ -147,7 +147,7 @@ export default function Projects() {
   }
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-medium text-stone-900">Proyectos</h1>

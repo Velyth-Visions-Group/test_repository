@@ -74,10 +74,12 @@ export default function Intake() {
   }
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <div className="mb-6">
         <h1 className="text-2xl font-medium text-stone-900">Intake</h1>
-        <p className="mt-1 text-sm text-stone-500">Solicitudes de servicio recibidas</p>
+        <p className="mt-1 text-sm text-stone-500">
+          Solicitudes de servicio recibidas. Ningún trabajo inicia sin SOW firmado.
+        </p>
       </div>
 
       {/* Filter tabs */}
@@ -106,7 +108,7 @@ export default function Intake() {
       ) : (
         <div className="space-y-3">
           {requests.map((req) => (
-            <div key={req.id} className="card p-5 animate-fade-in">
+            <div key={req.id} className="card p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-3">

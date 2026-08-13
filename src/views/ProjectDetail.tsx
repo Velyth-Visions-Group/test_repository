@@ -188,7 +188,7 @@ export default function ProjectDetail() {
   }
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <button
         onClick={() => navigate('/proyectos')}
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-900 transition-colors"
