@@ -138,7 +138,7 @@ export default function Weeklies() {
   }
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-medium text-stone-900">Semanales</h1>
@@ -195,7 +195,7 @@ export default function Weeklies() {
       ) : (
         <div className="space-y-3">
           {weeklies.map((weekly) => (
-            <div key={weekly.id} className="card p-5 animate-fade-in">
+            <div key={weekly.id} className="card p-5">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${weekly.kind === 'kickoff' ? 'bg-teal-50 text-teal-600' : 'bg-stone-100 text-stone-600'}`}>
