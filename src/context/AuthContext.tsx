@@ -47,18 +47,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      if (!mounted) return;
-      setSession(s);
-      setUser(s?.user ?? null);
-      if (s?.user) {
-        loadProfile(s.user.id).finally(() => mounted && setLoading(false));
-      } else {
-        setLoading(false);
-      }
-    });
-
+    // Fuente única de verdad: onAuthStateChange emite INITIAL_SESSION
+    // solo después de procesar el hash de la URL (magic link), así que
+    // la sesión del correo nunca se pierde por un getSession() prematuro.
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+      if (!mounted) return;
       (async () => {
         setSession(s);
         setUser(s?.user ?? null);
@@ -67,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setProfile(null);
         }
-        setLoading(false);
+        if (mounted) setLoading(false);
       })();
     });
 

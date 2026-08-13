@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 import { LayoutDashboard, ArrowLeft, Mail } from 'lucide-react';
 
 export default function Login() {
+  const { session, profile, loading: authLoading, signOut } = useAuth();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +33,48 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-stone-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-300 border-t-stone-900" />
+      </div>
+    );
+  }
+
+  // Sesión activa y perfil cargado: entrar al portal
+  if (session && profile) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Sesión activa sin fila en profiles: la cuenta no tiene rol asignado
+  if (session && !profile) {
+    return (
+      <div className="min-h-screen bg-stone-50 flex flex-col">
+        <header className="border-b border-stone-200 bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-4 flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-900 text-white">
+              <LayoutDashboard size={16} />
+            </div>
+            <span className="text-sm font-semibold text-stone-900">Velyth</span>
+          </div>
+        </header>
+        <div className="flex flex-1 items-center justify-center px-4 py-12">
+          <div className="card w-full max-w-sm p-8 text-center animate-fade-in">
+            <h1 className="text-lg font-medium text-stone-900">Cuenta sin acceso asignado</h1>
+            <p className="mt-2 text-sm text-stone-500 leading-relaxed">
+              Su correo quedó autenticado, pero la cuenta todavía no tiene un rol
+              en el portal. El owner la activa asignándole un rol en la tabla
+              profiles o desde la sección Administración.
+            </p>
+            <button onClick={() => signOut()} className="btn-primary mt-6 w-full">
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col">
