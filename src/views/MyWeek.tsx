@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import type { Task, TaskStatus } from '@/types/database';
-import { formatDate } from '@/lib/helpers';
+import { formatDate, dueInfo } from '@/lib/helpers';
 import EmptyState from '@/components/EmptyState';
 import StatusBadge from '@/components/StatusBadge';
 import { CalendarDays, ChevronDown, ChevronRight } from 'lucide-react';
@@ -144,7 +144,7 @@ export default function MyWeek() {
       {totalTasks === 0 ? (
         <EmptyState
           title="Sin tareas asignadas"
-          message="No tiene tareas asignadas esta semana. Cuando se le asigne una tarea, aparecerá aquí."
+          message="Cuando un lead le asigne una tarea desde un proyecto, aparecerá aquí agrupada por proyecto."
           icon={<CalendarDays size={40} />}
         />
       ) : (
@@ -178,37 +178,51 @@ export default function MyWeek() {
 
                 {isOpen && (
                   <div className="border-t border-stone-100">
-                    {group.tasks.map((task) => (
-                      <div
-                        key={task.id}
-                        className="flex items-center gap-3 px-5 py-3 hover:bg-stone-50 transition-colors border-b border-stone-50 last:border-b-0"
-                      >
-                        <button
-                          onClick={() => toggleStatus(task.id, task.status)}
-                          className="flex-shrink-0 transition-transform active:scale-90"
-                          title="Cambiar estado"
+                    {group.tasks.map((task) => {
+                      const due = dueInfo(task.due_date);
+                      const open = task.status !== 'hecha';
+                      return (
+                        <div
+                          key={task.id}
+                          className="flex items-center gap-3 px-5 py-3 hover:bg-stone-50 transition-colors border-b border-stone-50 last:border-b-0"
                         >
-                          {task.status === 'hecha' ? (
-                            <div className="h-5 w-5 rounded-full bg-teal-600 flex items-center justify-center">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                              </svg>
-                            </div>
-                          ) : (
-                            <div className={`h-5 w-5 rounded-full border-2 ${task.status === 'en curso' ? 'border-amber-400 bg-amber-50' : 'border-stone-300'}`} />
-                          )}
-                        </button>
-                        <div className="flex-1 min-w-0">
-                          <p className={`text-sm ${task.status === 'hecha' ? 'text-stone-400 line-through' : 'text-stone-800'}`}>
-                            {task.title}
-                          </p>
+                          <button
+                            onClick={() => toggleStatus(task.id, task.status)}
+                            className="flex-shrink-0 transition-transform active:scale-90"
+                            title="Cambiar estado"
+                          >
+                            {task.status === 'hecha' ? (
+                              <div className="h-5 w-5 rounded-full bg-teal-600 flex items-center justify-center">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                              </div>
+                            ) : (
+                              <div className={`h-5 w-5 rounded-full border-2 ${task.status === 'en curso' ? 'border-amber-400 bg-amber-50' : 'border-stone-300'}`} />
+                            )}
+                          </button>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm ${task.status === 'hecha' ? 'text-stone-400 line-through' : 'text-stone-800'}`}>
+                              {task.title}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            <span
+                              className={`text-xs ${
+                                open && due.tone === 'overdue'
+                                  ? 'font-medium text-red-600'
+                                  : open && due.tone === 'today'
+                                    ? 'font-medium text-[var(--accent)]'
+                                    : 'text-stone-400'
+                              }`}
+                            >
+                              {open ? due.label : formatDate(task.due_date)}
+                            </span>
+                            <StatusBadge status={task.status} variant="task" />
+                          </div>
                         </div>
-                        <div className="flex items-center gap-3 flex-shrink-0">
-                          <span className="text-xs text-stone-400">{formatDate(task.due_date)}</span>
-                          <StatusBadge status={task.status} variant="task" />
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

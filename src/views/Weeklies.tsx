@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/components/Toast';
 import type { Weekly, WeeklyKind, Division } from '@/types/database';
 import { formatDate, getWeekStart, formatDateTime } from '@/lib/helpers';
 import EmptyState from '@/components/EmptyState';
@@ -15,8 +16,16 @@ const kindLabels: Record<string, string> = {
   digest: 'Digest',
 };
 
+// Estructura del ritual (Operations One 2.7): el reporte nace con guía,
+// nunca con una página en blanco.
+const weeklyTemplates: Record<WeeklyKind, string> = {
+  kickoff: 'Objetivo de la semana:\n\nTareas comprometidas:\n\nBloqueos conocidos:\n',
+  digest: 'Avances de la semana:\n\nEntregas realizadas:\n\nPendientes para la próxima semana:\n',
+};
+
 export default function Weeklies() {
   const { profile } = useAuth();
+  const { show } = useToast();
   const [weeklies, setWeeklies] = useState<Weekly[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +36,7 @@ export default function Weeklies() {
     kind: 'kickoff' as WeeklyKind,
     division: (profile?.division ?? 'VVG') as Division,
     week_start: getWeekStart(),
-    content: '',
+    content: weeklyTemplates.kickoff,
   });
   const [saving, setSaving] = useState(false);
 
@@ -68,9 +77,22 @@ export default function Weeklies() {
       kind: 'kickoff',
       division: (profile?.division ?? 'VVG') as Division,
       week_start: getWeekStart(),
-      content: '',
+      content: weeklyTemplates.kickoff,
     });
     setModalOpen(true);
+  };
+
+  const handleKindChange = (kind: WeeklyKind) => {
+    setForm((prev) => ({
+      ...prev,
+      kind,
+      content:
+        prev.content === '' ||
+        prev.content === weeklyTemplates.kickoff ||
+        prev.content === weeklyTemplates.digest
+          ? weeklyTemplates[kind]
+          : prev.content,
+    }));
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -87,6 +109,7 @@ export default function Weeklies() {
 
       if (insertError) throw insertError;
       setModalOpen(false);
+      show('Reporte publicado');
       loadWeeklies();
     } catch (err) {
       console.error('weekly save failed', err);
@@ -160,7 +183,7 @@ export default function Weeklies() {
       {weeklies.length === 0 ? (
         <EmptyState
           title="Sin reportes"
-          message="No hay reportes semanales que coincidan con los filtros seleccionados."
+          message="No hay reportes semanales que coincidan con los filtros seleccionados. El kickoff se publica el lunes y el digest el viernes."
           icon={<FileText size={40} />}
           action={
             <button onClick={openCreate} className="btn-primary">
@@ -219,7 +242,7 @@ export default function Weeklies() {
               <select
                 id="wk-kind"
                 value={form.kind}
-                onChange={(e) => setForm({ ...form, kind: e.target.value as WeeklyKind })}
+                onChange={(e) => handleKindChange(e.target.value as WeeklyKind)}
                 className="input-field"
               >
                 <option value="kickoff">Kickoff (lunes)</option>
@@ -256,12 +279,15 @@ export default function Weeklies() {
             <label className="label" htmlFor="wk-content">Contenido</label>
             <textarea
               id="wk-content"
-              rows={6}
+              rows={8}
               value={form.content}
               onChange={(e) => setForm({ ...form, content: e.target.value })}
               className="input-field resize-none"
-              placeholder="Escriba el contenido del reporte..."
+              placeholder="Complete las secciones del reporte..."
             />
+            <p className="mt-1.5 text-xs text-stone-400">
+              La estructura viene cargada según el tipo de reporte; reemplace cada sección con su contenido.
+            </p>
           </div>
 
           {error && (
