@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
+import { useToast } from '@/components/Toast';
 import type { Project, Profile, Client, Division } from '@/types/database';
 import { formatDate } from '@/lib/helpers';
 import EmptyState from '@/components/EmptyState';
@@ -12,6 +13,7 @@ const divisions: Division[] = ['VVG', 'VNS', 'VTS', 'DSS'];
 const projectStatuses = ['activo', 'pausado', 'completado', 'cancelado'];
 
 export default function Projects() {
+  const { show } = useToast();
   const [projects, setProjects] = useState<Project[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [leads, setLeads] = useState<Profile[]>([]);
@@ -115,10 +117,12 @@ export default function Projects() {
       }
 
       setModalOpen(false);
+      show(editing ? 'Proyecto actualizado' : 'Proyecto creado');
       loadProjects();
     } catch (err) {
       console.error('project save failed', err);
       setError('No se pudo guardar el proyecto.');
+      show('No se pudo guardar el proyecto', 'error');
     } finally {
       setSaving(false);
     }
@@ -147,7 +151,7 @@ export default function Projects() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-medium text-stone-900">Proyectos</h1>
-          <p className="mt-1 text-sm text-stone-500">Gestión de proyectos de Velyth</p>
+          <p className="mt-1 text-sm text-stone-500">Todo proyecto lleva cliente, división y responsable.</p>
         </div>
         <button onClick={openCreate} className="btn-primary">
           <Plus size={16} />
@@ -158,7 +162,7 @@ export default function Projects() {
       {projects.length === 0 ? (
         <EmptyState
           title="Sin proyectos"
-          message="Aún no hay proyectos registrados. Cree el primero con el botón de arriba."
+          message="Aún no hay proyectos registrados. Cree el primero con el botón de arriba; recuerde asignar división y responsable."
           icon={<FolderKanban size={40} />}
           action={
             <button onClick={openCreate} className="btn-primary">

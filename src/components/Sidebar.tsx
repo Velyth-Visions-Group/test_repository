@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { hasAnyRole } from '@/lib/helpers';
 import type { Role } from '@/types/database';
 import {
@@ -13,8 +14,9 @@ import {
   LayoutDashboard,
   Sun,
   Moon,
+  Gauge,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface NavItem {
   to: string;
@@ -24,6 +26,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
+  { to: '/panel', label: 'Panel de división', icon: Gauge, roles: ['owner', 'lead', 'executor'] },
   { to: '/semana', label: 'Mi semana', icon: CalendarDays, roles: ['executor', 'lead', 'owner'] },
   { to: '/proyectos', label: 'Proyectos', icon: FolderKanban, roles: ['lead', 'owner'] },
   { to: '/semanales', label: 'Semanales', icon: FileText, roles: ['owner', 'lead', 'executor'] },
@@ -39,10 +42,22 @@ export default function Sidebar() {
   const [isDark, setIsDark] = useState(
     () => document.documentElement.classList.contains('dark')
   );
+  const [newIntakeCount, setNewIntakeCount] = useState(0);
 
   const visibleItems = navItems.filter(
     (item) => hasAnyRole(profile?.roles, item.roles) || (item.to === '/mi-proyecto' && hasAnyRole(profile?.roles, ['cliente']))
   );
+
+  const canSeeIntake = hasAnyRole(profile?.roles, ['owner', 'lead']);
+
+  useEffect(() => {
+    if (!canSeeIntake) return;
+    supabase
+      .from('intake_requests')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'nuevo')
+      .then(({ count }) => setNewIntakeCount(count ?? 0));
+  }, [canSeeIntake]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -129,7 +144,12 @@ export default function Sidebar() {
               }
             >
               <Icon size={17} />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.to === '/intake' && newIntakeCount > 0 && (
+                <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--accent)]">
+                  {newIntakeCount}
+                </span>
+              )}
             </NavLink>
           );
         })}
