@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { ToastProvider } from '@/components/Toast';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Layout from '@/components/Layout';
 import Login from '@/views/Login';
@@ -11,6 +12,7 @@ import Weeklies from '@/views/Weeklies';
 import Intake from '@/views/Intake';
 import Admin from '@/views/Admin';
 import MyProject from '@/views/MyProject';
+import DivisionPanel from '@/views/DivisionPanel';
 import { hasAnyRole } from '@/lib/helpers';
 import type { Role } from '@/types/database';
 
@@ -51,6 +53,14 @@ function AppRoutes() {
       <Route path="/solicitar" element={<RequestService />} />
 
       {/* Protected routes */}
+      <Route
+        path="/panel"
+        element={
+          <ProtectedRoute roles={['owner', 'lead', 'executor'] as Role[]}>
+            <Layout><DivisionPanel /></Layout>
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/semana"
         element={
@@ -118,9 +128,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <ToastProvider>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </ToastProvider>
     </AuthProvider>
   );
 }
