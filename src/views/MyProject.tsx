@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import type { Project, Task } from '@/types/database';
@@ -91,7 +90,7 @@ export default function MyProject() {
   const doneTasks = tasks.filter((t) => t.status === 'hecha').length;
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <div className="mb-6">
         <h1 className="text-2xl font-medium text-stone-900">Mi proyecto</h1>
         <p className="mt-1 text-sm text-stone-500">Estado de su proyecto en Velyth</p>

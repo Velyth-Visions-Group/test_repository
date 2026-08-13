@@ -151,7 +151,7 @@ export default function DivisionPanel() {
   );
 
   return (
-    <div className="animate-fade-in">
+    <div>
       <div className="mb-6">
         <h1 className="text-2xl font-medium text-[var(--color-text)]">Panel de división</h1>
         <p className="mt-1 text-sm text-[var(--color-text-muted)]">
