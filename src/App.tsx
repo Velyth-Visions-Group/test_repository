@@ -13,6 +13,7 @@ import Intake from '@/views/Intake';
 import Admin from '@/views/Admin';
 import MyProject from '@/views/MyProject';
 import DivisionPanel from '@/views/DivisionPanel';
+import Manual from '@/views/Manual';
 import { hasAnyRole } from '@/lib/helpers';
 import type { Role } from '@/types/database';
 
@@ -90,6 +91,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute roles={['owner', 'lead', 'executor'] as Role[]}>
             <Layout><Weeklies /></Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/manual"
+        element={
+          <ProtectedRoute roles={['owner', 'lead', 'executor'] as Role[]}>
+            <Layout><Manual /></Layout>
           </ProtectedRoute>
         }
       />

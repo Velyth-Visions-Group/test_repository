@@ -15,6 +15,7 @@ import {
   Sun,
   Moon,
   Gauge,
+  BookOpen,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -30,6 +31,7 @@ const navItems: NavItem[] = [
   { to: '/semana', label: 'Mi semana', icon: CalendarDays, roles: ['executor', 'lead', 'owner'] },
   { to: '/proyectos', label: 'Proyectos', icon: FolderKanban, roles: ['lead', 'owner'] },
   { to: '/semanales', label: 'Semanales', icon: FileText, roles: ['owner', 'lead', 'executor'] },
+  { to: '/manual', label: 'Manual', icon: BookOpen, roles: ['owner', 'lead', 'executor'] },
   { to: '/intake', label: 'Intake', icon: Inbox, roles: ['owner', 'lead'] },
   { to: '/admin', label: 'Administración', icon: Users, roles: ['owner'] },
   { to: '/mi-proyecto', label: 'Mi proyecto', icon: Briefcase, roles: ['cliente'] },
